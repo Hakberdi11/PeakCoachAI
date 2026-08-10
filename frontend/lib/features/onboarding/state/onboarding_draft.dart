@@ -11,7 +11,6 @@ class OnboardingDraft {
     this.equipment = const [],
     this.trainingDays,
     this.workoutDuration,
-    this.trainingStyle,
     this.priorityMuscles = const [],
     this.injuries = '',
     this.coachPersonality,
@@ -27,8 +26,7 @@ class OnboardingDraft {
   final String? trainingEnvironment;
   final List<String> equipment;
   final int? trainingDays;
-  final String? workoutDuration;
-  final String? trainingStyle;
+  final int? workoutDuration;
   final List<String> priorityMuscles;
   final String injuries;
   final String? coachPersonality;
@@ -44,8 +42,7 @@ class OnboardingDraft {
     String? trainingEnvironment,
     List<String>? equipment,
     int? trainingDays,
-    String? workoutDuration,
-    String? trainingStyle,
+    int? workoutDuration,
     List<String>? priorityMuscles,
     String? injuries,
     String? coachPersonality,
@@ -62,7 +59,6 @@ class OnboardingDraft {
       equipment: equipment ?? this.equipment,
       trainingDays: trainingDays ?? this.trainingDays,
       workoutDuration: workoutDuration ?? this.workoutDuration,
-      trainingStyle: trainingStyle ?? this.trainingStyle,
       priorityMuscles: priorityMuscles ?? this.priorityMuscles,
       injuries: injuries ?? this.injuries,
       coachPersonality: coachPersonality ?? this.coachPersonality,
@@ -82,7 +78,6 @@ class OnboardingDraft {
       'equipment': equipment,
       'training_days': trainingDays,
       'workout_duration': workoutDuration,
-      'training_style': trainingStyle,
       'priority_muscles': priorityMuscles,
       'injuries': injuries,
       'coach_personality': coachPersonality,

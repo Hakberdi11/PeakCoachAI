@@ -37,7 +37,8 @@ class PlannedExercise(models.Model):
     target_sets = models.PositiveSmallIntegerField()
     target_reps_min = models.PositiveSmallIntegerField()
     target_reps_max = models.PositiveSmallIntegerField()
-    rest_seconds = models.PositiveSmallIntegerField(default=90)
+    rest_seconds = models.PositiveSmallIntegerField()
+    target_rir = models.PositiveSmallIntegerField(null=True, blank=True)
     notes = models.CharField(max_length=255, blank=True)
 
     class Meta:
@@ -45,6 +46,22 @@ class PlannedExercise(models.Model):
 
     def __str__(self):
         return self.exercise_name
+
+
+class Exercise(models.Model):
+    """A minimal curated catalog used by the manual plan-edit 'add exercise' picker.
+    Plan generation itself still produces freeform AI exercise names — this table is
+    only consulted when a user is hand-picking a replacement/addition."""
+
+    name = models.CharField(max_length=150, unique=True)
+    muscle_group = models.CharField(max_length=50)
+    equipment_needed = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ['muscle_group', 'name']
+
+    def __str__(self):
+        return self.name
 
 
 class WorkoutSession(models.Model):
@@ -100,6 +117,8 @@ class SetLog(models.Model):
     set_number = models.PositiveSmallIntegerField()
     weight = models.FloatField()
     reps = models.PositiveSmallIntegerField()
+    rir = models.PositiveSmallIntegerField(null=True, blank=True)
+    is_warmup = models.BooleanField(default=False)
     completed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

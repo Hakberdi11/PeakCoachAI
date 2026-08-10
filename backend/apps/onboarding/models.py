@@ -2,6 +2,9 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+WORKOUT_DURATION_MIN = 15
+WORKOUT_DURATION_MAX = 120
+
 
 class OnboardingProfile(models.Model):
     class Goal(models.TextChoices):
@@ -33,18 +36,6 @@ class OnboardingProfile(models.Model):
         HOME_GYM = 'home_gym', 'Home Gym'
         LIMITED_EQUIPMENT = 'limited_equipment', 'Limited Equipment'
 
-    class WorkoutDuration(models.TextChoices):
-        MIN_30 = '30', '30 min'
-        MIN_45 = '45', '45 min'
-        MIN_60 = '60', '60 min'
-        MIN_90_PLUS = '90+', '90+ min'
-
-    class TrainingStyle(models.TextChoices):
-        HIGH_INTENSITY = 'high_intensity', 'High Intensity'
-        PROGRESSIVE_OVERLOAD = 'progressive_overload', 'Progressive Overload'
-        HIGH_VOLUME = 'high_volume', 'High Volume'
-        BALANCED = 'balanced', 'Balanced'
-
     class CoachPersonality(models.TextChoices):
         DIRECT = 'direct', 'Direct'
         SUPPORTIVE = 'supportive', 'Supportive'
@@ -70,8 +61,9 @@ class OnboardingProfile(models.Model):
     training_days = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(2), MaxValueValidator(6)]
     )
-    workout_duration = models.CharField(max_length=8, choices=WorkoutDuration.choices)
-    training_style = models.CharField(max_length=32, choices=TrainingStyle.choices)
+    workout_duration = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(WORKOUT_DURATION_MIN), MaxValueValidator(WORKOUT_DURATION_MAX)]
+    )
     priority_muscles = models.JSONField(default=list, blank=True)
     injuries = models.TextField(blank=True)
     coach_personality = models.CharField(max_length=32, choices=CoachPersonality.choices)

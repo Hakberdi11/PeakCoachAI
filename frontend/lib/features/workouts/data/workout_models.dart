@@ -7,6 +7,7 @@ class PlannedExercise {
     required this.targetRepsMin,
     required this.targetRepsMax,
     required this.restSeconds,
+    this.targetRir,
   });
 
   final int? id;
@@ -16,6 +17,7 @@ class PlannedExercise {
   final int targetRepsMin;
   final int targetRepsMax;
   final int restSeconds;
+  final int? targetRir;
 
   factory PlannedExercise.fromJson(Map<String, dynamic> json) => PlannedExercise(
     id: json['id'] as int?,
@@ -25,6 +27,7 @@ class PlannedExercise {
     targetRepsMin: json['target_reps_min'] as int,
     targetRepsMax: json['target_reps_max'] as int,
     restSeconds: json['rest_seconds'] as int? ?? 90,
+    targetRir: json['target_rir'] as int?,
   );
 }
 
@@ -63,5 +66,29 @@ class WorkoutPlan {
     days: (json['days'] as List)
         .map((d) => WorkoutDay.fromJson(d as Map<String, dynamic>))
         .toList(),
+  );
+}
+
+/// An entry from the curated exercise catalog, used by the manual "add
+/// exercise" picker — distinct from [PlannedExercise], which is a freeform
+/// AI- or user-authored name inside a plan.
+class ExerciseCatalogEntry {
+  const ExerciseCatalogEntry({
+    required this.id,
+    required this.name,
+    required this.muscleGroup,
+    required this.equipmentNeeded,
+  });
+
+  final int id;
+  final String name;
+  final String muscleGroup;
+  final List<String> equipmentNeeded;
+
+  factory ExerciseCatalogEntry.fromJson(Map<String, dynamic> json) => ExerciseCatalogEntry(
+    id: json['id'] as int,
+    name: json['name'] as String,
+    muscleGroup: json['muscle_group'] as String,
+    equipmentNeeded: (json['equipment_needed'] as List).cast<String>(),
   );
 }

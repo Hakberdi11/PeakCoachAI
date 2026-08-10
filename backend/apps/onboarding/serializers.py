@@ -10,7 +10,7 @@ class OnboardingProfileSerializer(serializers.ModelSerializer):
             'goal', 'motivation', 'experience',
             'age', 'gender', 'height_cm', 'weight_kg',
             'training_environment', 'equipment',
-            'training_days', 'workout_duration', 'training_style',
+            'training_days', 'workout_duration',
             'priority_muscles', 'injuries', 'coach_personality',
             'completed_at',
         ]

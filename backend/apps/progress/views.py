@@ -8,6 +8,7 @@ from apps.workouts.models import SetLog, WorkoutSession
 
 from .models import PersonalRecord, WorkoutStreak
 from .serializers import PersonalRecordSerializer
+from .services.streak import rolling_completion_rate
 
 
 class ProgressSummaryView(APIView):
@@ -32,6 +33,7 @@ class ProgressSummaryView(APIView):
             {
                 'current_streak': streak.current_streak,
                 'longest_streak': streak.longest_streak,
+                'rolling_completion_rate': rolling_completion_rate(user),
                 'total_workouts': total_workouts,
                 'total_volume': total_volume,
                 'personal_records': PersonalRecordSerializer(personal_records, many=True).data,

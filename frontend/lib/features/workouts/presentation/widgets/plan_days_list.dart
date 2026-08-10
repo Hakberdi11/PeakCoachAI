@@ -10,11 +10,23 @@ class PlanDaysList extends StatelessWidget {
     required this.plan,
     this.padding = const EdgeInsets.all(24),
     this.onStartDay,
+    this.editable = false,
+    this.onEditExercise,
+    this.onDeleteExercise,
+    this.onAddExercise,
   });
 
   final WorkoutPlan plan;
   final EdgeInsets padding;
   final void Function(WorkoutDay day)? onStartDay;
+
+  /// When true, each exercise row gets edit/delete affordances and each day
+  /// gets an "Add exercise" action. Off by default so the read-only preview
+  /// screen (pre-signup) keeps its current look without any changes.
+  final bool editable;
+  final void Function(WorkoutDay day, PlannedExercise exercise)? onEditExercise;
+  final void Function(WorkoutDay day, PlannedExercise exercise)? onDeleteExercise;
+  final void Function(WorkoutDay day)? onAddExercise;
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +58,30 @@ class PlanDaysList extends StatelessWidget {
                           '${exercise.targetSets} x ${exercise.targetRepsMin}-${exercise.targetRepsMax}',
                           style: AppTextStyles.label,
                         ),
+                        if (editable) ...[
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.edit_outlined, size: 18, color: AppColors.platinumAccent),
+                            onPressed: () => onEditExercise?.call(day, exercise),
+                          ),
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            icon: const Icon(Icons.close, size: 18, color: AppColors.error),
+                            onPressed: () => onDeleteExercise?.call(day, exercise),
+                          ),
+                        ],
                       ],
                     ),
                   ),
                 ),
+                if (editable) ...[
+                  const SizedBox(height: 4),
+                  TextButton.icon(
+                    onPressed: () => onAddExercise?.call(day),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: const Text('Add exercise'),
+                  ),
+                ],
                 if (onStartDay != null) ...[
                   const SizedBox(height: 12),
                   ElevatedButton(

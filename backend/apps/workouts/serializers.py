@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import (
+    Exercise,
     ExerciseLog,
     PlannedExercise,
     SetLog,
@@ -11,12 +12,18 @@ from .models import (
 )
 
 
+class ExerciseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exercise
+        fields = ['id', 'name', 'muscle_group', 'equipment_needed']
+
+
 class PlannedExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = PlannedExercise
         fields = [
             'id', 'order', 'exercise_name', 'target_sets',
-            'target_reps_min', 'target_reps_max', 'rest_seconds', 'notes',
+            'target_reps_min', 'target_reps_max', 'rest_seconds', 'target_rir', 'notes',
         ]
 
 
@@ -39,7 +46,7 @@ class WorkoutPlanSerializer(serializers.ModelSerializer):
 class SetLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SetLog
-        fields = ['id', 'set_number', 'weight', 'reps', 'completed_at']
+        fields = ['id', 'set_number', 'weight', 'reps', 'rir', 'is_warmup', 'completed_at']
 
 
 class ExerciseLogSerializer(serializers.ModelSerializer):

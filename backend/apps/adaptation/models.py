@@ -26,3 +26,29 @@ class AdaptationHistory(models.Model):
 
     def __str__(self):
         return f'{self.decision} for {self.exercise_name or "session"} (user={self.user_id})'
+
+
+class CoachingNote(models.Model):
+    """Freeform accumulated preference/feedback, distinct from AdaptationHistory's
+    structured per-session decisions. Written from user-issued plan-revision
+    instructions (source='user') or auto-summarized from manual plan edits
+    (source='system'), and folded into every future plan generation/revision
+    prompt so stated preferences persist across sessions."""
+
+    class Source(models.TextChoices):
+        USER = 'user', 'User'
+        SYSTEM = 'system', 'System'
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='coaching_notes'
+    )
+    source = models.CharField(max_length=16, choices=Source.choices)
+    text = models.TextField()
+    category = models.CharField(max_length=32, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'CoachingNote({self.source}, user={self.user_id})'

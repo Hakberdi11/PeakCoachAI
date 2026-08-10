@@ -1,8 +1,10 @@
+from django.db.models import Q
 from django.utils import timezone
 
 from apps.progress.models import PersonalRecord
 
 from ..models import ExerciseLog, PlannedExercise, SetLog, WorkoutSession
+from .estimation import estimate_1rm
 
 
 class SessionError(Exception):
@@ -36,29 +38,45 @@ def get_or_create_exercise_log(session: WorkoutSession, *, planned_exercise_id=N
     return ExerciseLog.objects.create(session=session, exercise_name=exercise_name)
 
 
-def log_set(session: WorkoutSession, *, planned_exercise_id, exercise_name, set_number, weight, reps):
+def log_set(
+    session: WorkoutSession,
+    *,
+    planned_exercise_id,
+    exercise_name,
+    set_number,
+    weight,
+    reps,
+    rir=None,
+    is_warmup=False,
+):
     exercise_log = get_or_create_exercise_log(
         session, planned_exercise_id=planned_exercise_id, exercise_name=exercise_name
     )
     active_name = exercise_log.replaced_with_name or exercise_log.exercise_name
 
     # Computed before creating this set's row, so it naturally reflects everything
-    # logged before now — including earlier sets in this same session.
-    previous_best = (
-        SetLog.objects.filter(
-            exercise_log__session__user=session.user,
-            exercise_log__exercise_name=active_name,
-        )
-        .order_by('-weight')
-        .first()
-    )
+    # logged before now — including earlier sets in this same session. Matches on
+    # either the original or replaced-with name so history carries across an
+    # in-session exercise swap. Warmups are excluded and ranked by estimated 1RM
+    # (not raw weight) so a low-rep near-max single doesn't automatically outrank
+    # a heavier-effort higher-rep set.
+    prior_sets = SetLog.objects.filter(
+        exercise_log__session__user=session.user, is_warmup=False
+    ).filter(Q(exercise_log__exercise_name=active_name) | Q(exercise_log__replaced_with_name=active_name))
+    previous_best_e1rm = max((estimate_1rm(s.weight, s.reps) for s in prior_sets), default=None)
 
     set_log = SetLog.objects.create(
-        exercise_log=exercise_log, set_number=set_number, weight=weight, reps=reps
+        exercise_log=exercise_log,
+        set_number=set_number,
+        weight=weight,
+        reps=reps,
+        rir=rir,
+        is_warmup=is_warmup,
     )
 
-    is_new_pr = previous_best is None or weight > previous_best.weight
-    if is_new_pr:
+    is_new_pr = False
+    if not is_warmup and previous_best_e1rm is not None and estimate_1rm(weight, reps) > previous_best_e1rm:
+        is_new_pr = True
         PersonalRecord.objects.create(
             user=session.user,
             exercise_name=active_name,
